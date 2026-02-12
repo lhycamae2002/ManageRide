@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
+from .models import Ride
+from .serializers import RideSerializer
 
-# Create your views here.
+
+class RideViewSet(ModelViewSet):
+    queryset = Ride.objects.all()
+    serializer_class = RideSerializer
