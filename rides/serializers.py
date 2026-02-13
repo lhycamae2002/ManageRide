@@ -5,7 +5,10 @@ from .models import Ride, RideEvent, User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id_user', 'username', 'first_name', 'last_name', 'email', 'role', 'phone_number')
+        fields = (
+            'id_user', 'username', 'first_name', 'last_name',
+            'email', 'role', 'phone_number',
+        )
 
 
 class RideEventSerializer(serializers.ModelSerializer):
@@ -21,12 +24,25 @@ class RideSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ride
-        fields = ('id_ride', 'status', 'rider', 'driver', 'pickup_latitude', 'pickup_longitude', 'dropoff_latitude', 'dropoff_longitude', 'pickup_time', 'todays_ride_events')
+        fields = (
+            'id_ride', 'status', 'rider', 'driver',
+            'pickup_latitude', 'pickup_longitude',
+            'dropoff_latitude', 'dropoff_longitude',
+            'pickup_time', 'todays_ride_events',
+        )
 
     def get_todays_ride_events(self, obj):
-        # We expect prefetch to set `todays_ride_events` attribute for efficiency
+        """
+        Return only RideEvents from the last 24 hours.
+        Uses prefetched `todays_ride_events` attribute set via Prefetch
+        to avoid extra queries. Falls back to a filtered queryset if
+        the attribute is not present (e.g. detail view).
+        """
         events = getattr(obj, 'todays_ride_events', None)
         if events is None:
-            qs = obj.ride_events.filter(created_at__gte=self.context.get('todays_threshold'))
+            threshold = self.context.get('todays_threshold')
+            if threshold is None:
+                return []
+            qs = obj.ride_events.filter(created_at__gte=threshold)
             return RideEventSerializer(qs, many=True).data
         return RideEventSerializer(events, many=True).data

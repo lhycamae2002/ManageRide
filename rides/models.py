@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils import timezone
+
 
 class User(AbstractUser):
     id_user = models.AutoField(primary_key=True, db_column='id_user')
@@ -13,12 +13,21 @@ class User(AbstractUser):
     class Meta:
         db_table = 'user'
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}".strip() or self.username
+
 
 class Ride(models.Model):
     id_ride = models.AutoField(primary_key=True, db_column='id_ride')
     status = models.CharField(max_length=32)
-    rider = models.ForeignKey(User, related_name='rides_as_rider', on_delete=models.SET_NULL, null=True, db_column='id_rider')
-    driver = models.ForeignKey(User, related_name='rides_as_driver', on_delete=models.SET_NULL, null=True, db_column='id_driver')
+    rider = models.ForeignKey(
+        User, related_name='rides_as_rider',
+        on_delete=models.SET_NULL, null=True, db_column='id_rider',
+    )
+    driver = models.ForeignKey(
+        User, related_name='rides_as_driver',
+        on_delete=models.SET_NULL, null=True, db_column='id_driver',
+    )
     pickup_latitude = models.FloatField()
     pickup_longitude = models.FloatField()
     dropoff_latitude = models.FloatField(null=True, blank=True)
@@ -28,12 +37,21 @@ class Ride(models.Model):
     class Meta:
         db_table = 'ride'
 
+    def __str__(self):
+        return f"Ride {self.id_ride} ({self.status})"
+
 
 class RideEvent(models.Model):
     id_ride_event = models.AutoField(primary_key=True, db_column='id_ride_event')
-    ride = models.ForeignKey(Ride, related_name='ride_events', on_delete=models.CASCADE, db_column='id_ride')
+    ride = models.ForeignKey(
+        Ride, related_name='ride_events',
+        on_delete=models.CASCADE, db_column='id_ride',
+    )
     description = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'ride_event'
+
+    def __str__(self):
+        return f"RideEvent {self.id_ride_event}: {self.description}"
