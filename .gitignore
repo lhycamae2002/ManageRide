@@ -1,4 +1,5 @@
-__pycache__/
+.rides_project/__pycache__/
+.rides/__pycache__/
 *.pyc
 db.sqlite3
 .env

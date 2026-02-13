@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.utils import timezone
 
 class User(AbstractUser):
     id_user = models.AutoField(primary_key=True, db_column='id_user')
@@ -33,7 +33,7 @@ class RideEvent(models.Model):
     id_ride_event = models.AutoField(primary_key=True, db_column='id_ride_event')
     ride = models.ForeignKey(Ride, related_name='ride_events', on_delete=models.CASCADE, db_column='id_ride')
     description = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = 'ride_event'

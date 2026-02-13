@@ -50,7 +50,8 @@ class RideViewSet(viewsets.ModelViewSet):
                 pass
 
         # apply ordering from query params automatically via OrderingFilter
-        return qs
+        # default ordering by id_ride to ensure consistent pagination
+        return qs.order_by('id_ride')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
